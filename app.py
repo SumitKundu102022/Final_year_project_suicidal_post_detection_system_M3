@@ -24,35 +24,40 @@ TOKENIZER_URL = os.getenv("TOKENIZER_URL")    # Replace with actual URL
 # TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 
 def is_valid_pickle(file_path):
-    with open(file_path, 'rb') as f:
-        start = f.read(10)
-    return not start.startswith(b'<html')
+    try:
+        with open(file_path, 'rb') as f:
+            start = f.read(10)
+        return not start.startswith(b'<html')
+    except FileNotFoundError:
+        return False
 
-if not os.path.exists("model.h5"):
-    gdown.download(MODEL_URL, "model.h5", quiet=False)
-    
-if not is_valid_pickle("model.h5"):
-    st.error("Downloaded model.h5 is invalid. Please check the MODEL_URL.")
+if not MODEL_URL:
+    st.error("❌ MODEL_URL not set in .env file. Please provide a valid URL.")
     st.stop()
 
-# Load pre-trained tokenizer and model
-if not os.path.exists("tokenizer.pkl"):
-    if TOKENIZER_URL:
-        gdown.download(TOKENIZER_URL, "tokenizer.pkl", quiet=False)
-    else:
-        st.error("tokenizer.pkl not found and TOKENIZER_URL not set.")
+if not os.path.exists("model.h5"):
+    try:
+        gdown.download(MODEL_URL, "model.h5", quiet=False, fuzzy=True)
+    except Exception as e:
+        st.error(f"❌ Failed to download model.h5: {e}")
         st.stop()
 
-try:
-    with open("tokenizer.pkl", "rb") as f:
-        token_form = pickle.load(f)
-except Exception as e:
-    st.error(f"Error loading tokenizer: {e}")
-    st.stop()    
+if not is_valid_pickle("model.h5"):
+    st.error("❌ model.h5 is invalid or corrupted. Please check the MODEL_URL.")
+    st.stop()
 
-# Load necessary files
-# token_form = pickle.load(open('tokenizer.pkl', 'rb'))
-model = load_model("model.h5", compile=False)
+# Load tokenizer and model
+try:
+    token_form = pickle.load(open('tokenizer.pkl', 'rb'))
+except Exception as e:
+    st.error(f"❌ Failed to load tokenizer.pkl: {e}")
+    st.stop()
+
+try:
+    model = load_model("model.h5", compile=False)
+except Exception as e:
+    st.error(f"❌ Failed to load model.h5: {e}")
+    st.stop()
 
 # Twitter client setup
 # client = tweepy.Client(bearer_token=TWITTER_BEARER_TOKEN)
