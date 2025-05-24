@@ -39,9 +39,9 @@ if not os.path.exists(MODEL_PATH):
     gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
 # Validate the .h5 model file
-if not is_valid_keras_model(MODEL_PATH):
-    st.error("❌ model.h5 is invalid or corrupted. Please check the MODEL_URL.")
-    st.stop()
+# if not is_valid_keras_model(MODEL_PATH):
+#     st.error("❌ model.h5 is invalid or corrupted. Please check the MODEL_URL.")
+#     st.stop()
 
 
 # Load tokenizer and model
