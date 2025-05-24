@@ -3,13 +3,11 @@ from dotenv import load_dotenv
 import os
 import requests
 import pickle
-import gdown
-import h5py
 # import tweepy
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.text import Tokenizer
+
 
 
 from bdi_tool import calculate_bdi_score
@@ -22,26 +20,19 @@ load_dotenv()
 # URLs for model and tokenizer
 MODEL_PATH = "model.h5"
 MODEL_URL = os.getenv("MODEL_URL")           # Replace with actual URL
-TOKENIZER_URL = os.getenv("TOKENIZER_URL")    # Replace with actual URL
 # TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
     
-def is_valid_keras_model(file_path):
-    try:
-        import h5py
-        with h5py.File(file_path, 'r') as f:
-            return True
-    except Exception:
-        return False
-
-# Download the model if it doesn't exist
-if not os.path.exists(MODEL_PATH):
-    st.warning("Downloading model.h5 from Google Drive...")
-    gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
-
-# Validate the .h5 model file
-# if not is_valid_keras_model(MODEL_PATH):
-#     st.error("❌ model.h5 is invalid or corrupted. Please check the MODEL_URL.")
-#     st.stop()
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        print("Downloading model...")
+        response = requests.get(MODEL_URL)
+        if response.status_code == 200:
+            with open(MODEL_PATH, 'wb') as f:
+                f.write(response.content)
+            print("Model downloaded successfully.")
+        else:
+            print(f"Failed to download model. Status code: {response.status_code}")
+            raise Exception("Failed to download model.")
 
 
 # Load tokenizer and model
@@ -52,7 +43,8 @@ except Exception as e:
     st.stop()
 
 try:
-    model = load_model("model.h5", compile=False)
+    download_model()
+    model = load_model(MODEL_PATH)
 except Exception as e:
     st.error(f"❌ Failed to load model.h5: {e}")
     st.stop()
