@@ -10,3 +10,4 @@ newspaper3k==0.2.8
 python-dotenv==1.0.0
 lxml_html_clean==0.4.2
 gdown==4.7.1
+h5py==3.8.0

@@ -4,6 +4,7 @@ import os
 import requests
 import pickle
 import gdown
+import h5py
 # import tweepy
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -19,32 +20,29 @@ load_dotenv()
 
 
 # URLs for model and tokenizer
+MODEL_PATH = "model.h5"
 MODEL_URL = os.getenv("MODEL_URL")           # Replace with actual URL
 TOKENIZER_URL = os.getenv("TOKENIZER_URL")    # Replace with actual URL
 # TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
-
-def is_valid_pickle(file_path):
+    
+def is_valid_keras_model(file_path):
     try:
-        with open(file_path, 'rb') as f:
-            start = f.read(10)
-        return not start.startswith(b'<html')
-    except FileNotFoundError:
+        import h5py
+        with h5py.File(file_path, 'r') as f:
+            return True
+    except Exception:
         return False
 
-if not MODEL_URL:
-    st.error("❌ MODEL_URL not set in .env file. Please provide a valid URL.")
-    st.stop()
+# Download the model if it doesn't exist
+if not os.path.exists(MODEL_PATH):
+    st.warning("Downloading model.h5 from Google Drive...")
+    gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
 
-if not os.path.exists("model.h5"):
-    try:
-        gdown.download(MODEL_URL, "model.h5", quiet=False, fuzzy=True)
-    except Exception as e:
-        st.error(f"❌ Failed to download model.h5: {e}")
-        st.stop()
-
-if not is_valid_pickle("model.h5"):
+# Validate the .h5 model file
+if not is_valid_keras_model(MODEL_PATH):
     st.error("❌ model.h5 is invalid or corrupted. Please check the MODEL_URL.")
     st.stop()
+
 
 # Load tokenizer and model
 try:
