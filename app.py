@@ -8,6 +8,7 @@ import gdown
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
+from keras.preprocessing.text import Tokenizer
 
 
 from bdi_tool import calculate_bdi_score
@@ -34,16 +35,23 @@ if not is_valid_pickle("model.h5"):
     st.error("Downloaded model.h5 is invalid. Please check the MODEL_URL.")
     st.stop()
     
-if not os.path.exists("tokenizer.pkl"):
-    gdown.download(TOKENIZER_URL, "tokenizer.pkl", quiet=False)
+# if not os.path.exists("tokenizer.pkl"):
+#     gdown.download(TOKENIZER_URL, "tokenizer.pkl", quiet=False)
     
-if not is_valid_pickle("tokenizer.pkl"):
-    st.error("Downloaded tokenizer.pkl is invalid. Please check the TOKENIZER_URL.")
-    st.stop()
+# if not is_valid_pickle("tokenizer.pkl"):
+#     st.error("Downloaded tokenizer.pkl is invalid. Please check the TOKENIZER_URL.")
+#     st.stop()
 
 # # Download model/tokenizer if not already present
 # download_file(MODEL_URL, "model.h5")
-# download_file(TOKENIZER_URL, "tokenizer.pkl")              
+# download_file(TOKENIZER_URL, "tokenizer.pkl")   
+# Create and save tokenizer if not exists
+# if not os.path.exists('tokenizer.pkl'):
+#     tokenizer = Tokenizer(num_words=5000, oov_token="<OOV>")
+#     tokenizer.fit_on_texts(training_texts)
+#     with open('tokenizer.pkl', 'wb') as f:
+#         pickle.dump(tokenizer, f)
+           
 
 
 # Load necessary files
