@@ -16,26 +16,30 @@ from prediction_method import display_prediction
 # Load environment variables
 load_dotenv()
 
-# Utility function to download model/tokenizer if not present
-# def download_file(url, local_filename):
-#     if not os.path.exists(local_filename):
-#         with requests.get(url, stream=True) as r:
-#             r.raise_for_status()
-#             with open(local_filename, 'wb') as f:
-#                 for chunk in r.iter_content(chunk_size=8192):
-#                     f.write(chunk)
-
 
 # URLs for model and tokenizer
-MODEL_URL = os.getenv("MODEL_URL")        # Replace with actual URL
+MODEL_URL = os.getenv("MODEL_URL")           # Replace with actual URL
 TOKENIZER_URL = os.getenv("TOKENIZER_URL")    # Replace with actual URL
 # TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
+
+def is_valid_pickle(file_path):
+    with open(file_path, 'rb') as f:
+        start = f.read(10)
+    return not start.startswith(b'<html')
 
 if not os.path.exists("model.h5"):
     gdown.download(MODEL_URL, "model.h5", quiet=False)
     
+if not is_valid_pickle("model.h5"):
+    st.error("Downloaded model.h5 is invalid. Please check the MODEL_URL.")
+    st.stop()
+    
 if not os.path.exists("tokenizer.pkl"):
     gdown.download(TOKENIZER_URL, "tokenizer.pkl", quiet=False)
+    
+if not is_valid_pickle("tokenizer.pkl"):
+    st.error("Downloaded tokenizer.pkl is invalid. Please check the TOKENIZER_URL.")
+    st.stop()
 
 # # Download model/tokenizer if not already present
 # download_file(MODEL_URL, "model.h5")
