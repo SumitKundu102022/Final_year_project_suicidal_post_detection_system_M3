@@ -34,28 +34,24 @@ if not os.path.exists("model.h5"):
 if not is_valid_pickle("model.h5"):
     st.error("Downloaded model.h5 is invalid. Please check the MODEL_URL.")
     st.stop()
-    
-# if not os.path.exists("tokenizer.pkl"):
-#     gdown.download(TOKENIZER_URL, "tokenizer.pkl", quiet=False)
-    
-# if not is_valid_pickle("tokenizer.pkl"):
-#     st.error("Downloaded tokenizer.pkl is invalid. Please check the TOKENIZER_URL.")
-#     st.stop()
 
-# # Download model/tokenizer if not already present
-# download_file(MODEL_URL, "model.h5")
-# download_file(TOKENIZER_URL, "tokenizer.pkl")   
-# Create and save tokenizer if not exists
-# if not os.path.exists('tokenizer.pkl'):
-#     tokenizer = Tokenizer(num_words=5000, oov_token="<OOV>")
-#     tokenizer.fit_on_texts(training_texts)
-#     with open('tokenizer.pkl', 'wb') as f:
-#         pickle.dump(tokenizer, f)
-           
+# Load pre-trained tokenizer and model
+if not os.path.exists("tokenizer.pkl"):
+    if TOKENIZER_URL:
+        gdown.download(TOKENIZER_URL, "tokenizer.pkl", quiet=False)
+    else:
+        st.error("tokenizer.pkl not found and TOKENIZER_URL not set.")
+        st.stop()
 
+try:
+    with open("tokenizer.pkl", "rb") as f:
+        token_form = pickle.load(f)
+except Exception as e:
+    st.error(f"Error loading tokenizer: {e}")
+    st.stop()    
 
 # Load necessary files
-token_form = pickle.load(open('tokenizer.pkl', 'rb'))
+# token_form = pickle.load(open('tokenizer.pkl', 'rb'))
 model = load_model("model.h5", compile=False)
 
 # Twitter client setup
